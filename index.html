@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparación de Sistemas de Archivos</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        .content {
+            padding: 40px;
+        }
+        .section {
+            margin-bottom: 40px;
+            padding: 30px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            border-left: 5px solid #3498db;
+        }
+        .section h2 {
+            color: #2c3e50;
+            margin-top: 0;
+            font-size: 1.8em;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .section h3 {
+            color: #34495e;
+            margin-top: 25px;
+            font-size: 1.3em;
+        }
+        .filesystem-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 4px solid #e74c3c;
+        }
+        .filesystem-card.linux {
+            border-left-color: #f39c12;
+        }
+        .filesystem-card.windows {
+            border-left-color: #3498db;
+        }
+        .filesystem-card.ios {
+            border-left-color: #9b59b6;
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .comparison-table th {
+            background: #34495e;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        .comparison-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        .command-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        .command-title {
+            color: #3498db;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .pros-cons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .pros, .cons {
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .pros {
+            background: #d5f4e6;
+            border-left: 4px solid #27ae60;
+        }
+        .cons {
+            background: #fdeaea;
+            border-left: 4px solid #e74c3c;
+        }
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #3498db;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -37px;
+            top: 25px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #3498db;
+        }
+        .year {
+            font-weight: bold;
+            color: #3498db;
+            font-size: 1.1em;
+        }
+        .print-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+            transition: all 0.3s ease;
+        }
+        .print-button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
+        }
+        @media print {
+            body { background: white; }
+            .container { box-shadow: none; }
+            .print-button { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Sistemas de Archivos</h1>
+            <p>Comparación entre Linux (Ext3/4), Windows (NTFS) e iOS (APFS/HFS+)</p>
+        </div>
+
+        <div class="content">
+            <!-- Reseña Histórica -->
+            <div class="section">
+                <h2>📚 Reseña Histórica de los Sistemas de Archivos</h2>
+                
+                <div class="filesystem-card linux">
+                    <h3>🐧 Evolución en Linux</h3>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="year">1992</div>
+                            <strong>Ext (Extended File System)</strong> - Primer sistema de archivos nativo para Linux, limitado a 2GB
+                        </div>
+                        <div class="timeline-item">
+                            <div class="year">1993</div>
+                            <strong>Ext2</strong> - Mejoró las limitaciones de Ext, soporte hasta 2TB, sin journaling
+                        </div>
+                        <div class="timeline-item">
+                            <div class="year">2001</div>
+                            <strong>Ext3</strong> - Añadió journaling para mayor confiabilidad y recuperación de datos
+                        </div>
+                        <div class="timeline-item">
+                            <div class="year">2008</div>
+                            <strong>Ext4</strong> - Mejoras en rendimiento, soporte para archivos hasta 16TB y volúmenes de 1EB
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filesystem-card windows">
+                    <h3>🪟 Evolución en Windows</h3>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="year">1977</div>
+                            <strong>FAT (File Allocation Table)</strong> - Sistema básico para disquetes y primeros discos duros
+                        </div>
+                        <div class="timeline-item">
+                            <div class="year">1987</div>
+                            <strong>FAT16</strong> - Soporte para discos duros más grandes, hasta 2GB
+                        </div>
+                        <div class="timeline-item">
+                            <div class="year">1996</div>
+                            <strong>FAT32</strong> - Eliminó muchas limitaciones de FAT16, soporte hasta 2TB
+                        </div>
+                        <div class="timeline-item">
+                            <div class="year">1993</div>
+                            <strong>NTFS (New Technology File System)</strong> - Sistema avanzado con seguridad, journaling y compresión
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filesystem-card ios">
+                    <h3>🍎 Evolución en iOS/macOS</h3>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="year">1985</div>
+                            <strong>HFS (Hierarchical File System)</strong> - Primer sistema jerárquico de Apple para Macintosh
+                        </div>
+                        <div class="timeline-item">
+                            <div class="year">1998</div>
+                            <strong>HFS+</strong> - Mejoras significativas, soporte Unicode, archivos más grandes
+                        </div>
+                        <div class="timeline-item">
+                            <div class="year">2017</div>
+                            <strong>APFS (Apple File System)</strong> - Sistema moderno con snapshots, encriptación y optimización para SSD
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comparación Técnica -->
+            <div class="section">
+                <h2>⚖️ Comparación Técnica Detallada</h2>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Característica</th>
+                            <th>Linux (Ext3/4)</th>
+                            <th>Windows (NTFS)</th>
+                            <th>iOS (APFS)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Tamaño máximo de archivo</strong></td>
+                            <td>Ext3: 2TB<br>Ext4: 16TB</td>
+                            <td>256TB</td>
+                            <td>8EB</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tamaño máximo de volumen</strong></td>
+                            <td>Ext3: 32TB<br>Ext4: 1EB</td>
+                            <td>256TB</td>
+                            <td>8EB</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Número máximo de archivos</strong></td>
+                            <td>Ext3: 32,000 por directorio<br>Ext4: Ilimitado</td>
+                            <td>4,294,967,295</td>
+                            <td>9 quintillones</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Journaling</strong></td>
+                            <td>Sí (desde Ext3)</td>
+                            <td>Sí</td>
+                            <td>Sí (Copy-on-Write)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Encriptación</strong></td>
+                            <td>Mediante herramientas externas</td>
+                            <td>EFS (Encrypting File System)</td>
+                            <td>Nativa (FileVault)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Compresión</strong></td>
+                            <td>No nativa</td>
+                            <td>Sí (NTFS Compression)</td>
+                            <td>Sí (transparente)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Snapshots</strong></td>
+                            <td>LVM snapshots</td>
+                            <td>Volume Shadow Copy</td>
+                            <td>Sí (nativo)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Deduplicación</strong></td>
+                            <td>Herramientas externas</td>
+                            <td>Sí (Windows Server)</td>
+                            <td>Sí</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Ventajas y Desventajas -->
+            <div class="section">
+                <h2>✅❌ Ventajas y Desventajas</h2>
+                
+                <div class="filesystem-card linux">
+                    <h3>🐧 Linux (Ext3/4)</h3>
+                    <div class="pros-cons">
+                        <div class="pros">
+                            <h4>✅ Ventajas</h4>
+                            <ul>
+                                <li>Código abierto y gratuito</li>
+                                <li>Altamente estable y confiable</li>
+                                <li>Excelente rendimiento</li>
+                                <li>Soporte nativo en Linux</li>
+                                <li>Journaling desde Ext3</li>
+                                <li>Fragmentación mínima</li>
+                            </ul>
+                        </div>
+                        <div class="cons">
+                            <h4>❌ Desventajas</h4>
+                            <ul>
+                                <li>Limitado soporte en Windows</li>
+                                <li>No tiene compresión nativa</li>
+                                <li>Encriptación requiere herramientas externas</li>
+                                <li>Ext3 tiene limitaciones de tamaño</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filesystem-card windows">
+                    <h3>🪟 Windows (NTFS)</h3>
+                    <div class="pros-cons">
+                        <div class="pros">
+                            <h4>✅ Ventajas</h4>
+                            <ul>
+                                <li>Seguridad avanzada con ACLs</li>
+                                <li>Compresión y encriptación nativas</li>
+                                <li>Journaling robusto</li>
+                                <li>Soporte para archivos grandes</li>
+                                <li>Cuotas de disco</li>
+                                <li>Recuperación de errores</li>
+                            </ul>
+                        </div>
+                        <div class="cons">
+                            <h4>❌ Desventajas</h4>
+                            <ul>
+                                <li>Propietario de Microsoft</li>
+                                <li>Fragmentación con el tiempo</li>
+                                <li>Soporte limitado en otros OS</li>
+                                <li>Overhead de metadatos</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filesystem-card ios">
+                    <h3>🍎 iOS (APFS)</h3>
+                    <div class="pros-cons">
+                        <div class="pros">
+                            <h4>✅ Ventajas</h4>
+                            <ul>
+                                <li>Optimizado para SSD/Flash</li>
+                                <li>Snapshots instantáneos</li>
+                                <li>Encriptación fuerte nativa</li>
+                                <li>Copy-on-Write eficiente</li>
+                                <li>Clonación rápida de archivos</li>
+                                <li>Verificación de integridad</li>
+                            </ul>
+                        </div>
+                        <div class="cons">
+                            <h4>❌ Desventajas</h4>
+                            <ul>
+                                <li>Exclusivo de Apple</li>
+                                <li>Relativamente nuevo</li>
+                                <li>Sin soporte en otros sistemas</li>
+                                <li>Limitado a dispositivos Apple</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comandos -->
+            <div class="section">
+                <h2>💻 Comandos Principales por Sistema</h2>
+
+                <div class="filesystem-card linux">
+                    <h3>🐧 Comandos Linux</h3>
+                    
+                    <div class="command-title">Crear directorios:</div>
+                    <div class="command-block">mkdir directorio<br>mkdir -p ruta/completa/directorio<br>mkdir -m 755 directorio_con_permisos</div>
+
+                    <div class="command-title">Cambiar directorios:</div>
+                    <div class="command-block">cd directorio<br>cd ..<br>cd ~<br>cd -<br>pwd (mostrar directorio actual)</div>
+
+                    <div class="command-title">Asignar permisos:</div>
+                    <div class="command-block">chmod 755 archivo<br>chmod u+x archivo<br>chmod -R 644 directorio<br>chown usuario:grupo archivo<br>chgrp grupo archivo</div>
+
+                    <div class="command-title">Copiar archivos:</div>
+                    <div class="command-block">cp archivo destino<br>cp -r directorio destino<br>cp -p archivo destino (preservar atributos)<br>rsync -av origen destino</div>
+
+                    <div class="command-title">Mover archivos:</div>
+                    <div class="command-block">mv archivo destino<br>mv archivo nuevo_nombre<br>mv directorio nuevo_directorio</div>
+
+                    <div class="command-title">Otros comandos útiles:</div>
+                    <div class="command-block">ls -la (listar archivos)<br>rm archivo (eliminar)<br>rm -rf directorio (eliminar directorio)<br>find / -name archivo<br>du -h directorio (tamaño)<br>df -h (espacio en disco)</div>
+                </div>
+
+                <div class="filesystem-card windows">
+                    <h3>🪟 Comandos Windows (CMD/PowerShell)</h3>
+                    
+                    <div class="command-title">Crear directorios:</div>
+                    <div class="command-block">mkdir directorio<br>md directorio<br>New-Item -ItemType Directory -Path "ruta" (PowerShell)</div>
+
+                    <div class="command-title">Cambiar directorios:</div>
+                    <div class="command-block">cd directorio<br>cd ..<br>cd \<br>cd %USERPROFILE%<br>pwd (PowerShell)</div>
+
+                    <div class="command-title">Asignar permisos:</div>
+                    <div class="command-block">icacls archivo /grant usuario:F<br>icacls archivo /deny usuario:R<br>takeown /f archivo<br>attrib +r archivo (solo lectura)</div>
+
+                    <div class="command-title">Copiar archivos:</div>
+                    <div class="command-block">copy archivo destino<br>xcopy /s /e origen destino<br>robocopy origen destino /E<br>Copy-Item archivo destino (PowerShell)</div>
+
+                    <div class="command-title">Mover archivos:</div>
+                    <div class="command-block">move archivo destino<br>ren archivo nuevo_nombre<br>Move-Item archivo destino (PowerShell)</div>
+
+                    <div class="command-title">Otros comandos útiles:</div>
+                    <div class="command-block">dir (listar archivos)<br>del archivo (eliminar)<br>rmdir /s directorio<br>where archivo (buscar)<br>fsutil volume diskfree C: (espacio)</div>
+                </div>
+
+                <div class="filesystem-card ios">
+                    <h3>🍎 Comandos iOS/macOS (Terminal)</h3>
+                    
+                    <div class="command-title">Crear directorios:</div>
+                    <div class="command-block">mkdir directorio<br>mkdir -p ruta/completa/directorio<br>mkdir -m 755 directorio</div>
+
+                    <div class="command-title">Cambiar directorios:</div>
+                    <div class="command-block">cd directorio<br>cd ..<br>cd ~<br>pwd</div>
+
+                    <div class="command-title">Asignar permisos:</div>
+                    <div class="command-block">chmod 755 archivo<br>chown usuario archivo<br>chgrp grupo archivo<br>xattr -w com.apple.metadata:kMDItemWhereFroms archivo</div>
+
+                    <div class="command-title">Copiar archivos:</div>
+                    <div class="command-block">cp archivo destino<br>cp -R directorio destino<br>ditto origen destino<br>rsync -av origen destino</div>
+
+                    <div class="command-title">Mover archivos:</div>
+                    <div class="command-block">mv archivo destino<br>mv archivo nuevo_nombre</div>
+
+                    <div class="command-title">Comandos específicos de macOS:</div>
+                    <div class="command-block">ls -la@ (mostrar atributos extendidos)<br>mdls archivo (metadata)<br>diskutil list (discos)<br>tmutil startbackup (Time Machine)<br>fs_usage (monitoreo sistema archivos)</div>
+                </div>
+            </div>
+
+            <!-- Seguridad -->
+            <div class="section">
+                <h2>🔒 Aspectos de Seguridad</h2>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Aspecto</th>
+                            <th>Linux (Ext3/4)</th>
+                            <th>Windows (NTFS)</th>
+                            <th>iOS (APFS)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Permisos</strong></td>
+                            <td>Unix tradicional (rwx)<br>ACLs con herramientas adicionales</td>
+                            <td>ACLs avanzadas<br>Herencia de permisos</td>
+                            <td>Unix + ACLs<br>Permisos granulares</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Encriptación</strong></td>
+                            <td>LUKS, eCryptfs<br>dm-crypt</td>
+                            <td>EFS, BitLocker<br>Encriptación por archivo/disco</td>
+                            <td>FileVault<br>Encriptación hardware</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Auditoría</strong></td>
+                            <td>auditd<br>Logs del sistema</td>
+                            <td>Auditoría de objetos<br>Event Viewer</td>
+                            <td>Logs unificados<br>Console.app</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Integridad</strong></td>
+                            <td>Checksums manuales<br>AIDE, Tripwire</td>
+                            <td>Verificación automática<br>Restore points</td>
+                            <td>Verificación automática<br>Snapshots</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Rendimiento -->
+            <div class="section">
+                <h2>⚡ Comparación de Rendimiento</h2>
+                
+                <div class="filesystem-card">
+                    <h3>Factores de Rendimiento</h3>
+                    <ul>
+                        <li><strong>Ext4:</strong> Excelente para operaciones secuenciales, baja fragmentación, journaling eficiente</li>
+                        <li><strong>NTFS:</strong> Bueno para archivos grandes, puede fragmentarse, compresión transparente afecta rendimiento</li>
+                        <li><strong>APFS:</strong> Optimizado para SSD, copy-on-write puede generar overhead, snapshots muy eficientes</li>
+                    </ul>
+                </div>
+
+                <div class="filesystem-card">
+                    <h3>Casos de Uso Recomendados</h3>
+                    <ul>
+                        <li><strong>Ext4:</strong> Servidores Linux, estaciones de trabajo, sistemas embebidos</li>
+                        <li><strong>NTFS:</strong> Escritorios Windows, servidores Windows, almacenamiento empresarial</li>
+                        <li><strong>APFS:</strong> Dispositivos Apple modernos, almacenamiento SSD, backup con Time Machine</li>
+                    </ul>
+                </div>
+                <h3>INTEGRANTES DEL GRUPO - Creadores de la pagina y taller de "SISTEMAS OPERATIVOS" </h3>
+                    <ul>
+                        <li><strong>Int 1:</strong> OSWALDO VARGAS MANJARRES;  Diseño, Codigo</li>
+                        <li><strong>Int 2:</strong> ALEJANDRO CANCINO;         Codigo </li>
+                        <li><strong>Int 3:</strong> DANIEL VEGA HOYOS;         Estructura</li>
+                    </ul>
+            </div>
+        </div>
+    </div>
+
+    <button class="print-button" onclick="window.print()">📄 Generar PDF</button>
+
+    <script>
+        // Añadir interactividad suave
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.filesystem-card, .section');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            });
+
+            cards.forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(card);
+            });
+        });
+    </script>
+</body>
+</html>
